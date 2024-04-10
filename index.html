@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky-Lot Cars</title>
+    <link rel="stylesheet" href="./style.css">
+    <script defer>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadCarsBtn = document.getElementById('loadCarsBtn');
+            const carList = document.getElementById('carList');
+            let cars = [];
+
+            loadCarsBtn.addEventListener('click', () => {
+                fetch('/api/getAllCars')
+                    .then(response => response.json())
+                    .then(data => {
+                        cars = data;
+                        carList.innerHTML = '';
+                        data.forEach((car, index) => {
+                            const carCard = document.createElement('div');
+                            carCard.classList.add('car-card');
+                            carCard.innerHTML = `
+                                <h2>${car.make} ${car.model}</h2>
+                                <p>Year: ${car.year}</p>
+                                <p>Color: ${car.color}</p>
+                                <p>Price: ${car.price}</p>
+                            `;
+                            carList.appendChild(carCard);
+                        });
+                    });
+            });
+
+            document.getElementById('carForm').addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const newCar = {
+                    make: document.getElementById('make').value,
+                    model: document.getElementById('model').value,
+                    year: document.getElementById('year').value,
+                    color: document.getElementById('color').value,
+                    price: document.getElementById('price').value,
+                };
+
+                fetch('/api/addCar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newCar),
+                })
+                .then(response => response.text())
+                .then(result => {
+                    // Display the result in your HTML here
+                    console.log(result);
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Lucky-Lot Cars</h1>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <button id="loadCarsBtn" class="btn">Load Cars</button>
+            <div id="carList" class="grid-container"></div>
+        </div>
+        <!-- add new car -->
+        <div class="container">
+            <form id="carForm">
+                <input type="text" id="make" placeholder="Make" required>
+                <input type="text" id="model" placeholder="Model" required>
+                <input type="number" id="year" placeholder="Year" required>
+                <input type="text" id="color" placeholder="Color" required>
+                <input type="number" id="price" placeholder="Price" required>
+                <button type="submit">Add Car</button>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 Lucky-Lot Cars</p>
+    </footer>
+</body>
+
+</html>
