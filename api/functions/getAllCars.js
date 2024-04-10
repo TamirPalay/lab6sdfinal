@@ -1,21 +1,28 @@
 // getAllCars.js
-module.exports = async function (context, req) {
-    try {
-        const carData = fs.readFileSync('../cars.json');
-        const cars = JSON.parse(carData);
+const fs = require('fs');
+const path = require('path');
+const { app } = require('@azure/functions');
+const jsonFilePath = path.resolve(__dirname,'cars.json');
+app.http('getAllCars', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: async (request, context) => {
+        try{
+        const jsonData = await fs.readFile(jsonFilePath, 'utf8');
+            const data = JSON.parse(jsonData);
 
-        context.res = {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*' // Add this line
-            },
-            body: cars
-        };
-    } catch (error) {
-        context.res = {
-            status: 500,
-            body: 'Internal Server Error'
-        };
+            return {
+                status:200,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+        }catch(error){
+            return{
+                status:500,
+                body:'Internal Server Error. Failed to get cars.'
+            }
+        }
     }
-};
+});

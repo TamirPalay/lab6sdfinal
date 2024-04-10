@@ -1,17 +1,38 @@
 // addCar.js
-module.exports = async function (context, req) {
-    const fs = require('fs');
-    const newCar = req.body;
+const fs = require('fs').promises;
+const path = require('path');
+const { app } = require('@azure/functions');
 
-    const carData = fs.readFileSync('./cars.json');
-    const cars = JSON.parse(carData);
 
-    cars.push(newCar);
+const jsonFilePath = path.resolve(__dirname,'cars.json');
 
-    fs.writeFileSync('./cars.json', JSON.stringify(cars));
 
-    context.res = {
-        status: 200,
-        body: "new car added"
-    };
-}
+/**
+ *  Adds a car to the cars array, and writes the new array to the cars.json file
+ */
+app.http('addCar', {
+    methods: ['POST'],
+    handler: async (request, context) => {
+        try{
+            const jsonData = await fs.readFile(jsonFilePath, 'utf8');
+            const data = JSON.parse(jsonData);
+
+            newCar = await request.json();
+
+            data.push(newCar)
+
+            const newDataJson = JSON.stringify(data);
+            await fs.writeFile(jsonFilePath, newDataJson, 'utf8');
+
+            return{
+                status:200,
+                body:"Added new car successfully"
+            }
+        }catch(error){
+            return{
+                status:500,
+                body:'Internal Server Error. Failed to add car.'
+            }
+        }
+    }
+});
