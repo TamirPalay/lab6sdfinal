@@ -1,14 +1,23 @@
-// getAllCars.js
-module.exports = async function (context, req) {
-    const fs = require('fs');
-    const carData = fs.readFileSync('./cars.json');
-    const cars = JSON.parse(carData);
+const fs = require('fs');
 
-    context.res = {
-        status: 200,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: cars
-    };
-}
+// getAllCars.js
+
+module.exports = async function (context, req) {
+    try {
+        const carData = fs.readFileSync('./cars.json');
+        const cars = JSON.parse(carData);
+
+        context.res = {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: cars
+        };
+    } catch (error) {
+        context.res = {
+            status: 500,
+            body: 'Internal Server Error'
+        };
+    }
+};
